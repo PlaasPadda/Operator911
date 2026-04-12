@@ -5,49 +5,47 @@ import java.net.*;
 
 public class ClientApp {
 
-	public static void main(String[] args) throws IOException {
+    private Socket socket;
+    private BufferedReader in;
+    private PrintWriter out;
+    private MessageListener listener;
+
+    public void connect(String host, int port, MessageListener listener) throws IOException {
+        this.listener = listener;
 
 		// Connect aan die socket wat Server gemaak het (socket 5000)
-		Socket socket = new Socket("localhost", 5000);
+        socket = new Socket(host, port);
 
         // Maak n reader genaamd "in", assign dit aan die input wat Client kry van socket
-        BufferedReader in = new BufferedReader(
-            new InputStreamReader(socket.getInputStream())
-        );
+        in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
         // Maak n printer genaamd "out", assign dit aan die output wat Client stuur deur socket
-        PrintWriter out = new PrintWriter(
-            socket.getOutputStream(), true
-        );
+        out = new PrintWriter(socket.getOutputStream(), true);
 
-        
-        // Reader thread
+        startReaderThread();
+    }
+
+    private void startReaderThread() {
+
         // Maak n loop op n seperate thread wat kyk of daar n message kom deur socket. As ja, print dit
         new Thread(() -> {
             try {
                 String msg;
                 while ((msg = in.readLine()) != null) {
-                    System.out.println("Server: " + msg);
+                    if (listener != null) {
+                        listener.onMessageReceived(msg);
+                    }
                 }
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }).start();
+    }
 
-        // Writer loop
-        // Maak n nuwe reader genaamd console, assign dit aan terminal
-        BufferedReader console = new BufferedReader(
-            new InputStreamReader(System.in)
-        );
-
-        // As iets in terminal getik word, stuur dit deur socket
-        String input;
-        while ((input = console.readLine()) != null) {
-            out.println(input);
+    // Stuur message deur socket
+    public void sendMessage(String msg) {
+        if (out != null) {
+            out.println(msg);
         }
-
-
-        socket.close();
-	}
-
+    }
 }
