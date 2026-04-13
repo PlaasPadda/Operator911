@@ -24,6 +24,11 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.DocumentEvent;
+import javax.swing.SwingUtilities;
+import javax.swing.DefaultListModel;
+
+import java.util.List;
+import java.util.ArrayList;
 
 import operator911.app.ClientApp;
 
@@ -48,6 +53,10 @@ public class ClientUI extends JFrame {
 	private float xLocation;
 	private float yLocation;
 	private boolean locEntered = false;
+
+	private List<Resource> fireResources = new ArrayList<>();
+	private List<Resource> hospitalResources = new ArrayList<>();
+	private List<Resource> policeResources = new ArrayList<>();
 	
 	private ClientApp client;
 	private JLabel lblNewLabel;
@@ -77,17 +86,45 @@ public class ClientUI extends JFrame {
 	 */
 	public ClientUI() {
 		
-		ClientApp client = new ClientApp();
+		client = new ClientApp();
 
-        new Thread(() -> {
-            try {
-                client.connect("localhost", 5000, message -> {
-                    System.out.println("Received from server: " + message);
-                });
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }).start();
+		new Thread(() -> {
+	        try {
+	            client.connect("localhost", 5000, message -> {
+	                // Parse die incoming JSON van die server
+	                Gson gson = new Gson();
+	                try {
+	                    Resource rsrc= gson.fromJson(message, Resource.class);
+	                    SwingUtilities.invokeLater(() -> {
+	                        System.out.println("Services: " + rsrc.id);
+	                        System.out.println("X: " + rsrc.x);
+	                        System.out.println("Y: " + rsrc.y);
+	                        
+	                        // Format the entry to display in the JList
+	                        String entry = rsrc.id + " | X: " + rsrc.x + " | Y: " + rsrc.y;
+
+	                        // Add to the correct JList based on first character of id
+	                        if (rsrc.id != null && !rsrc.id.isEmpty()) {
+	                            char firstChar = rsrc.id.charAt(0);
+
+	                            if (firstChar == 'F') {
+	                                addToList(listFire, entry, rsrc, fireResources);
+	                            } else if (firstChar == 'H') {
+	                                addToList(listHospital, entry, rsrc, hospitalResources);
+	                            } else if (firstChar == 'P') {
+	                                addToList(listPolice, entry, rsrc, policeResources);
+	                            }
+	                        }	                        
+	                    });
+	                } catch (Exception e) {
+	                    // Not a JSON message, handle as plain text
+	                    System.out.println("Server says: " + message);
+	                }
+	            });
+	        } catch (Exception e) {
+	            e.printStackTrace();
+	        }
+	    }).start();
         
         
 		setBackground(new Color(119, 118, 123));
@@ -201,6 +238,17 @@ public class ClientUI extends JFrame {
 		contentPane.add(lblPrank);
 		
 		btnSend = new JButton("Dispatch Units");
+		btnSend.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				int selectedIndex = listFire.getSelectedIndex();
+				if (selectedIndex != -1) {
+				    Resource selected = fireResources.get(selectedIndex);
+				    System.out.println("Selected: " + selected.id);
+
+				}
+			}
+		});
 		btnSend.setBounds(327, 582, 263, 44);
 		btnSend.setVisible(false);
 		contentPane.add(btnSend);	
@@ -360,5 +408,30 @@ public class ClientUI extends JFrame {
 			System.out.println("Exception occurred: " + e.toString());
 			return false;
 		}
+	}
+	
+	private void addToList(JList list, String entry, Resource rsrc, List<Resource> resources) {
+	    DefaultListModel model;
+
+	    if (list.getModel() instanceof DefaultListModel) {
+	        model = (DefaultListModel) list.getModel();
+	    } else {
+	        model = new DefaultListModel();
+	        list.setModel(model);
+	    }
+
+	    // Only add if the resource is not already in the array
+	    boolean alreadyExists = false;
+	    for (Resource r : resources) {
+	        if (r.id.equals(rsrc.id)) {
+	            alreadyExists = true;
+	            break;
+	        }
+	    }
+
+	    if (!alreadyExists) {
+	        model.addElement(entry);
+	        resources.add(rsrc);
+	    } // ← keeps indexes in sync with the JList
 	}
 }

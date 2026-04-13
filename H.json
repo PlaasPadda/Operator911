@@ -1,1 +1,8 @@
 {"id":"H72", "type":"vehicle", "x":"10.0", "y":"20.0", "available":"1"}
+{"id":"H3", "type":"vehicle", "x":"100.0", "y":"20.0", "available":"1"}
+{"id":"H23", "type":"vehicle", "x":"34.0", "y":"3.0", "available":"1"}
+{"id":"H65", "type":"vehicle", "x":"55.0", "y":"64.0", "available":"0"}
+{"id":"H45", "type":"vehicle", "x":"75.0", "y":"71.0", "available":"1"}
+{"id":"H51", "type":"vehicle", "x":"22.0", "y":"23.0", "available":"1"}
+{"id":"H94", "type":"vehicle", "x":"94.0", "y":"33.0", "available":"1"}
+{"id":"H83", "type":"vehicle", "x":"77.0", "y":"2.0", "available":"0"}
