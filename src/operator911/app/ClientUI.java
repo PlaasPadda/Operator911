@@ -112,8 +112,11 @@ public class ClientUI extends JFrame {
 								System.out.println("X: " + rsrc.x);
 								System.out.println("Y: " + rsrc.y);
 								
+								// Calculate die distance
+								double distance = DistanceCalculator.calculate(xLocation, yLocation, rsrc.x, rsrc.y);
+								double rounded = Math.round(distance * 100.0) / 100.0;
 								// Format the entry to display in the JList
-								String entry = rsrc.id + " | X: " + rsrc.x + " | Y: " + rsrc.y;
+								String entry = "ID: " + rsrc.id + " | Type: " + rsrc.type + " | Distance: " + rounded;
 
 								// Add to the correct JList based on first character of id
 								if (rsrc.id != null && !rsrc.id.isEmpty() && rsrc.available == true) {
@@ -202,18 +205,21 @@ public class ClientUI extends JFrame {
 		contentPane.add(lblServices);
 		
 		listHospital = new JList();
-		listHospital.setBounds(327, 260, 263, 294);
+		listHospital.setFont(new Font("Dialog", Font.BOLD, 12));
+		listHospital.setBounds(317, 260, 286, 294);
 		listHospital.setVisible(false);
 		contentPane.add(listHospital);
 		
 		listFire = new JList();
+		listFire.setFont(new Font("Dialog", Font.BOLD, 12));
 		listFire.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		listFire.setBounds(30, 260, 263, 294);
+		listFire.setBounds(12, 260, 286, 294);
 		listFire.setVisible(false);
 		contentPane.add(listFire);
 		
 		listPolice = new JList();
-		listPolice.setBounds(628, 260, 263, 294);
+		listPolice.setFont(new Font("Dialog", Font.BOLD, 12));
+		listPolice.setBounds(623, 260, 286, 294);
 		listPolice.setVisible(false);
 		contentPane.add(listPolice);
 		
@@ -499,6 +505,18 @@ public class ClientUI extends JFrame {
         listHospital.setVisible(false);
 		txtServices.setText("");
 		txtServices.setEditable(false);
+		fireResources = new ArrayList<>();
+		hospitalResources = new ArrayList<>();
+		policeResources = new ArrayList<>();
+		
+		DefaultListModel model = (DefaultListModel) listFire.getModel();
+		model.removeAllElements(); // or model.clear();
+		
+		model = (DefaultListModel) listHospital.getModel();
+		model.removeAllElements(); // or model.clear();
+		
+		model = (DefaultListModel) listPolice.getModel();
+		model.removeAllElements(); // or model.clear();
 
 	}
 	
