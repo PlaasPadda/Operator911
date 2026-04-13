@@ -57,7 +57,7 @@ public class ServerApp {
                         bufferedWriter.flush();
                         
                         // Update availability in the correct file
-                        updateResourceAvailability(rqst.id, gson);
+                        updateResourceAvailability(rqst.id, gson, out);
                     }
                     
                     if (rqst.type.equals("info")) {
@@ -126,7 +126,7 @@ public class ServerApp {
 		}
 	}
 	
-	private static void updateResourceAvailability(String id, Gson gson) {
+	private static void updateResourceAvailability(String id, Gson gson, PrintWriter out) {
 	    if (id == null || id.isEmpty()) return;
 
 	    // Determine which file to update based on first character of ID
@@ -158,6 +158,10 @@ public class ServerApp {
 	                rsrc.available = false;
 	                line = gson.toJson(rsrc);
 	                System.out.println("Updated availability for: " + id);
+	                
+	                Resource confirm = new Resource("", "confirm", 0, 0, false);
+					String json = gson.toJson(confirm);
+					out.println(json);
 	            }
 
 	            updatedLines.add(line);

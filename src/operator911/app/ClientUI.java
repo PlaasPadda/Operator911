@@ -30,7 +30,10 @@ import javax.swing.DefaultListModel;
 import java.util.List;
 import java.util.ArrayList;
 
+import javax.swing.JOptionPane;
+
 import operator911.app.ClientApp;
+import operator911.fleetgenerator.DistanceCalculator;
 
 public class ClientUI extends JFrame {
 
@@ -96,28 +99,35 @@ public class ClientUI extends JFrame {
 	            client.connect("localhost", 5000, message -> {
 	                // Parse die incoming JSON van die server
 	                Gson gson = new Gson();
+	                
 	                try {
 	                    Resource rsrc= gson.fromJson(message, Resource.class);
 	                    SwingUtilities.invokeLater(() -> {
-	                        System.out.println("Services: " + rsrc.id);
-	                        System.out.println("X: " + rsrc.x);
-	                        System.out.println("Y: " + rsrc.y);
-	                        
-	                        // Format the entry to display in the JList
-	                        String entry = rsrc.id + " | X: " + rsrc.x + " | Y: " + rsrc.y;
+	                    	if (rsrc.type.equals("confirm")) {
+	                    		JOptionPane.showMessageDialog(ClientUI.this, "Resources Dispatched!");	
+	                    		resetUI();
+	                    	} else {
+	                    		
+								System.out.println("Services: " + rsrc.id);
+								System.out.println("X: " + rsrc.x);
+								System.out.println("Y: " + rsrc.y);
+								
+								// Format the entry to display in the JList
+								String entry = rsrc.id + " | X: " + rsrc.x + " | Y: " + rsrc.y;
 
-	                        // Add to the correct JList based on first character of id
-	                        if (rsrc.id != null && !rsrc.id.isEmpty() && rsrc.available == true) {
-	                            char firstChar = rsrc.id.charAt(0);
+								// Add to the correct JList based on first character of id
+								if (rsrc.id != null && !rsrc.id.isEmpty() && rsrc.available == true) {
+									char firstChar = rsrc.id.charAt(0);
 
-	                            if (firstChar == 'F') {
-	                                addToList(listFire, entry, rsrc, fireResources);
-	                            } else if (firstChar == 'H') {
-	                                addToList(listHospital, entry, rsrc, hospitalResources);
-	                            } else if (firstChar == 'P') {
-	                                addToList(listPolice, entry, rsrc, policeResources);
-	                            }
-	                        }	                        
+									if (firstChar == 'F') {
+										addToList(listFire, entry, rsrc, fireResources);
+									} else if (firstChar == 'H') {
+										addToList(listHospital, entry, rsrc, hospitalResources);
+									} else if (firstChar == 'P') {
+										addToList(listPolice, entry, rsrc, policeResources);
+									}
+								}	                        
+	                    	}
 	                    });
 	                } catch (Exception e) {
 	                    // Not a JSON message, handle as plain text
@@ -180,7 +190,7 @@ public class ClientUI extends JFrame {
 				if (isNumeric(txtLocationX.getText()) && isNumeric(txtLocationY.getText())) {
 					xLocation = Float.parseFloat(txtLocationX.getText());
 					yLocation = Float.parseFloat(txtLocationY.getText());
-					locEntered = true;
+					txtServices.setEditable(true);
 				} 
 			}
 		});
@@ -291,6 +301,7 @@ public class ClientUI extends JFrame {
 		contentPane.add(btnSend);	
 
 		txtServices = new JTextField();
+		txtServices.setEditable(false);
 		txtServices.setHorizontalAlignment(SwingConstants.CENTER);
 		txtServices.setText("FHP");
 		txtServices.setBounds(500, 141, 114, 21);
@@ -401,7 +412,6 @@ public class ClientUI extends JFrame {
 				txtServices.setText("");
 			}
 		});
-
 		
 		JLabel lblFireLetter = new JLabel("F -> FIre Department ");
 		lblFireLetter.setForeground(new Color(119, 118, 123));
@@ -423,8 +433,6 @@ public class ClientUI extends JFrame {
 		lblNewLabel.setBounds(361, 37, 9, 33);
 		contentPane.add(lblNewLabel);
 		
-
-		
 		lblNewLabel_1 = new JLabel(",");
 		lblNewLabel_1.setFont(new Font("Dialog", Font.BOLD, 20));
 		lblNewLabel_1.setBounds(406, 37, 9, 33);
@@ -434,7 +442,6 @@ public class ClientUI extends JFrame {
 		lblNewLabel_2.setFont(new Font("Dialog", Font.BOLD, 20));
 		lblNewLabel_2.setBounds(449, 37, 9, 33);
 		contentPane.add(lblNewLabel_2);
-		
 		
 	}
 	
@@ -477,4 +484,22 @@ public class ClientUI extends JFrame {
 	        resources.add(rsrc);
 	    } // ← keeps indexes in sync with the JList
 	}
+	
+	private void resetUI() {
+
+    	btnSend.setVisible(false);
+        lblPrank.setVisible(false);
+        lblHrank.setVisible(false);
+        lblFRank.setVisible(false);
+        lblAvailablePUnits.setVisible(false);
+        lblAvailableHUnits.setVisible(false);
+        lblAvailableFUnits.setVisible(false);
+        listPolice.setVisible(false);
+        listFire.setVisible(false);
+        listHospital.setVisible(false);
+		txtServices.setText("");
+		txtServices.setEditable(false);
+
+	}
+	
 }

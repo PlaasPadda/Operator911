@@ -1,8 +1,8 @@
-{"id":"F15","type":"vehicle","x":2.0,"y":9.0,"available":false}
+{"id":"F15","type":"vehicle","x":2.0,"y":9.0,"available":true}
 {"id":"F50", "type":"vehicle", "x":"15.0", "y":"4.0", "available":"false"}
 {"id":"F23", "type":"vehicle", "x":"9.0", "y":"1.0", "available":"true"}
 {"id":"F45", "type":"vehicle", "x":"45.0", "y":"26.0", "available":"false"}
-{"id":"F99", "type":"vehicle", "x":"36.0", "y":"75.0", "available":"true"}
+{"id":"F99","type":"vehicle","x":36.0,"y":75.0,"available":false}
 {"id":"F12","type":"vehicle","x":100.0,"y":44.0,"available":false}
 {"id":"F65", "type":"vehicle", "x":"63.0", "y":"32.0", "available":"false"}
 {"id":"F32", "type":"vehicle", "x":"5.0", "y":"9.0", "available":"true"}
