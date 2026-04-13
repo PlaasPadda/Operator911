@@ -107,7 +107,7 @@ public class ClientUI extends JFrame {
 	                        String entry = rsrc.id + " | X: " + rsrc.x + " | Y: " + rsrc.y;
 
 	                        // Add to the correct JList based on first character of id
-	                        if (rsrc.id != null && !rsrc.id.isEmpty()) {
+	                        if (rsrc.id != null && !rsrc.id.isEmpty() && rsrc.available == true) {
 	                            char firstChar = rsrc.id.charAt(0);
 
 	                            if (firstChar == 'F') {

@@ -1,6 +1,6 @@
-{"id":"P53", "type":"vehicle", "x":"50.0", "y":"90.0", "available":"1"}
-{"id":"P2", "type":"vehicle", "x":"11.0", "y":"25.0", "available":"1"}
-{"id":"P10", "type":"vehicle", "x":"52.0", "y":"65.0", "available":"0"}
-{"id":"P44", "type":"vehicle", "x":"25.0", "y":"32.0", "available":"1"}
-{"id":"P72", "type":"vehicle", "x":"74.0", "y":"28.0", "available":"1"}
-{"id":"P89", "type":"vehicle", "x":"79.0", "y":"90.0", "available":"1"}
+{"id":"P53", "type":"vehicle", "x":"50.0", "y":"90.0", "available":"true"}
+{"id":"P2", "type":"vehicle", "x":"11.0", "y":"25.0", "available":"true"}
+{"id":"P10", "type":"vehicle", "x":"52.0", "y":"65.0", "available":"false"}
+{"id":"P44", "type":"vehicle", "x":"25.0", "y":"32.0", "available":"true"}
+{"id":"P72", "type":"vehicle", "x":"74.0", "y":"28.0", "available":"true"}
+{"id":"P89", "type":"vehicle", "x":"79.0", "y":"90.0", "available":"true"}

@@ -2,6 +2,8 @@ package operator911.app;
 import java.io.*;
 import java.net.*;
 import com.google.gson.Gson;
+import java.util.List;
+import java.util.ArrayList;
 
 public class ServerApp {
 	
@@ -50,9 +52,12 @@ public class ServerApp {
 
                     // Write the JSON string to the file, one entry per line
                     if (rqst.type.equals("request")) {
-                    	bufferedWriter.write(received);
-                    	bufferedWriter.newLine();
-                    	bufferedWriter.flush();
+                        bufferedWriter.write(received);
+                        bufferedWriter.newLine();
+                        bufferedWriter.flush();
+                        
+                        // Update availability in the correct file
+                        updateResourceAvailability(rqst.id, gson);
                     }
                     
                     if (rqst.type.equals("info")) {
@@ -119,6 +124,59 @@ public class ServerApp {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	private static void updateResourceAvailability(String id, Gson gson) {
+	    if (id == null || id.isEmpty()) return;
+
+	    // Determine which file to update based on first character of ID
+	    char firstChar = id.charAt(0);
+	    String filename;
+
+	    if (firstChar == 'F') {
+	        filename = "F.json";
+	    } else if (firstChar == 'H') {
+	        filename = "H.json";
+	    } else if (firstChar == 'P') {
+	        filename = "P.json";
+	    } else {
+	        System.out.println("Unknown resource type: " + id);
+	        return;
+	    }
+
+	    try {
+	        // Lees hele file 
+	        BufferedReader fileReader = new BufferedReader(new FileReader(filename));
+	        List<String> updatedLines = new ArrayList<>();
+	        String line;
+
+	        while ((line = fileReader.readLine()) != null) {
+	            Resource rsrc = gson.fromJson(line, Resource.class);
+
+	            // If this is the matching entry, set availability to 0
+	            if (rsrc.id != null && rsrc.id.equals(id)) {
+	                rsrc.available = false;
+	                line = gson.toJson(rsrc);
+	                System.out.println("Updated availability for: " + id);
+	            }
+
+	            updatedLines.add(line);
+	        }
+
+	        fileReader.close();
+
+	        // ReWrite all lines back to the file (false die keer)
+	        BufferedWriter fileWriter = new BufferedWriter(new FileWriter(filename, false));
+	        for (String updatedLine : updatedLines) {
+	            fileWriter.write(updatedLine);
+	            fileWriter.newLine();
+	        }
+	        fileWriter.flush();
+	        fileWriter.close();
+
+	    } catch (IOException e) {
+	        e.printStackTrace();
+	    }
 	}
 		
 	
