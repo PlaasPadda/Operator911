@@ -53,6 +53,9 @@ public class ClientUI extends JFrame {
 	private float xLocation;
 	private float yLocation;
 	private boolean locEntered = false;
+	private boolean Fshow = false;
+	private boolean Hshow = false;
+	private boolean Pshow = false;
 
 	private List<Resource> fireResources = new ArrayList<>();
 	private List<Resource> hospitalResources = new ArrayList<>();
@@ -241,13 +244,47 @@ public class ClientUI extends JFrame {
 		btnSend.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				int selectedIndex = listFire.getSelectedIndex();
-				if (selectedIndex != -1) {
-				    Resource selected = fireResources.get(selectedIndex);
-				    System.out.println("Selected: " + selected.id);
+				if (Fshow == true) {
+					int selectedIndex = listFire.getSelectedIndex();
 
+					if (selectedIndex != -1) {
+						Resource selected = fireResources.get(selectedIndex);
+						System.out.println("Selected: " + selected.id);
+						sendRequest(selected.id);
+					}
+				}
+
+				if (Hshow == true) {
+					int selectedIndex = listHospital.getSelectedIndex();
+
+					if (selectedIndex != -1) {
+						Resource selected = hospitalResources.get(selectedIndex);
+						System.out.println("Selected: " + selected.id);
+						sendRequest(selected.id);
+					}
+				}
+
+				if (Pshow == true) {
+					int selectedIndex = listPolice.getSelectedIndex();
+
+					if (selectedIndex != -1) {
+						Resource selected = policeResources.get(selectedIndex);
+						System.out.println("Selected: " + selected.id);
+						sendRequest(selected.id);
+					}
 				}
 			}
+			
+		    private Gson gson = new Gson();
+		    
+		    private void sendRequest(String id) {
+				Request rqst = new Request("request", "", id, 0, 0);
+				
+				String json = gson.toJson(rqst);
+
+				client.sendMessage(json);
+		    	}
+		    	
 		});
 		btnSend.setBounds(327, 582, 263, 44);
 		btnSend.setVisible(false);
@@ -287,30 +324,36 @@ public class ClientUI extends JFrame {
 		            listFire.setVisible(true);
 		            lblAvailableFUnits.setVisible(true);
 		            lblFRank.setVisible(true);
+		            Fshow = true;
 		        } else {
 		            listFire.setVisible(false);
 		            lblAvailableFUnits.setVisible(false);
 		            lblFRank.setVisible(false);
+		            Fshow = false;
 		        }
 
 		        if (text.contains("H")) {
 		            listHospital.setVisible(true);
 		            lblAvailableHUnits.setVisible(true);
 		            lblHrank.setVisible(true);
+		            Hshow = true;
 		        } else {
 		            listHospital.setVisible(false);
 		            lblAvailableHUnits.setVisible(false);
 		            lblHrank.setVisible(false);
+		            Hshow = false;
 		        }
 
 		        if (text.contains("P")) {
 		            listPolice.setVisible(true);
 		            lblAvailablePUnits.setVisible(true);
 		            lblPrank.setVisible(true);
+		            Pshow = true;
 		        } else {
 		            listPolice.setVisible(false);
 		            lblAvailablePUnits.setVisible(false);
 		            lblPrank.setVisible(false);
+		            Pshow = false;
 		        }
 		        
 		        if (text.isEmpty()) {
@@ -327,7 +370,7 @@ public class ClientUI extends JFrame {
 		    	String serviceText = txtServices.getText();
 		    	
 		    	if (serviceText.length() > 0) {
-					Request rqst = new Request("info", serviceText, xLocation, yLocation);
+					Request rqst = new Request("info", serviceText, "", xLocation, yLocation);
 					
 					String json = gson.toJson(rqst);
 
