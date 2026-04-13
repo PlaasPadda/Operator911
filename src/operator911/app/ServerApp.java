@@ -87,28 +87,40 @@ public class ServerApp {
 	}
 	
 	private static void searchAndSendByType(String targetType, PrintWriter out) {
-	    try {
-	    	
+
 	    	if (targetType.contains("F")) {
-	    		System.out.println("It does");
-				BufferedReader fileReader = new BufferedReader(new FileReader("F.json"));
-				Gson gson = new Gson();
-				String line;
+	    		System.out.println("It does contain F");
+	    		readAndSendLine("F.json", out);
+	    	}
+	    	if (targetType.contains("H")) {
+	    		System.out.println("It does contain H");
+	    		readAndSendLine("H.json", out);
+	    	}
+	    	if (targetType.contains("P")) {
+	    		System.out.println("It does contain P");
+	    		readAndSendLine("P.json", out);
+	    	}
 
-				while ((line = fileReader.readLine()) != null) {
-					//Resource rcrs = gson.fromJson(line, Resource.class);
-					//out.println(rcrs);
-					System.out.println("Sent matching entry: " + line);
-					}
+	}
+	
+	private static void readAndSendLine(String filename, PrintWriter out) {
+	    try {
+			BufferedReader fileReader = new BufferedReader(new FileReader(filename));
+			Gson gson = new Gson();
+			String line;
 
-				fileReader.close();
-
+			while ((line = fileReader.readLine()) != null) {
+				out.println(line);
+				System.out.println("Sent matching entry: " + line);
 				}
 
-	    } catch (IOException e) {
-	        e.printStackTrace();
-	    }
+			fileReader.close();
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
+		
 	
 };
 
