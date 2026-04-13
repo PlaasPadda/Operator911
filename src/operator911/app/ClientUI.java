@@ -2,6 +2,8 @@ package operator911.app;
 
 import java.awt.EventQueue;
 
+import com.google.gson.Gson;
+
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
@@ -23,11 +25,13 @@ import java.awt.event.ComponentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.DocumentEvent;
 
+import operator911.app.ClientApp;
+
 public class ClientUI extends JFrame {
 
 	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
-	private JTextField txtLocation;
+	private JTextField txtLocationX;
 	private JTextField txtServices;
 	private JList listHospital;
 	private JList listFire;
@@ -39,10 +43,17 @@ public class ClientUI extends JFrame {
 	private JLabel lblAvailablePUnits;
 	private JLabel lblPrank;
 	private JButton btnSend;
-	public static final String SERVICES = "FfHhPp";
-	public boolean Fshow = false;
-	public boolean Hshow = false;
-	public boolean Pshow = false;
+
+	private static final String SERVICES = "FfHhPp";
+	private float xLocation;
+	private float yLocation;
+	private boolean locEntered = false;
+	
+	private ClientApp client;
+	private JLabel lblNewLabel;
+	private JTextField txtLocationY;
+	private JLabel lblNewLabel_1;
+	private JLabel lblNewLabel_2;
 	
 
 	/**
@@ -65,6 +76,20 @@ public class ClientUI extends JFrame {
 	 * Create the frame.
 	 */
 	public ClientUI() {
+		
+		ClientApp client = new ClientApp();
+
+        new Thread(() -> {
+            try {
+                client.connect("localhost", 5000, message -> {
+                    System.out.println("Received from server: " + message);
+                });
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }).start();
+        
+        
 		setBackground(new Color(119, 118, 123));
 		setTitle("ClientUI");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -79,22 +104,47 @@ public class ClientUI extends JFrame {
 		lblLocation.setVerticalAlignment(SwingConstants.TOP);
 		contentPane.add(lblLocation);
 		
-		txtLocation = new JTextField();
-		txtLocation.addMouseListener(new MouseAdapter() {
+		txtLocationX = new JTextField();
+		txtLocationX.setHorizontalAlignment(SwingConstants.CENTER);
+		txtLocationX.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				// Clear text wanneer geclick word
-				txtLocation.setText("");
+				txtLocationX.setText("");
 			}
 		});
-		txtLocation.setText("(x,y)");
-		txtLocation.setToolTipText("(x,y)");
-		txtLocation.setBounds(357, 45, 114, 21);
-		contentPane.add(txtLocation);
-		txtLocation.setColumns(10);
+		txtLocationX.setText("x");
+		txtLocationX.setToolTipText("(x,y)");
+		txtLocationX.setBounds(372, 45, 31, 21);
+		contentPane.add(txtLocationX);
+		txtLocationX.setColumns(10);
+
+		txtLocationY = new JTextField();
+		txtLocationY.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				txtLocationY.setText("");
+			}
+		});
+		txtLocationY.setHorizontalAlignment(SwingConstants.CENTER);
+		txtLocationY.setToolTipText("(x,y)");
+		txtLocationY.setText("y");
+		txtLocationY.setColumns(10);
+		txtLocationY.setBounds(416, 45, 31, 21);
+		contentPane.add(txtLocationY);
 		
 		JButton btnLocation = new JButton("Go");
-		btnLocation.setBounds(483, 45, 50, 21);
+		btnLocation.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				if (isNumeric(txtLocationX.getText()) && isNumeric(txtLocationY.getText())) {
+					xLocation = Float.parseFloat(txtLocationX.getText());
+					yLocation = Float.parseFloat(txtLocationY.getText());
+					locEntered = true;
+				} 
+			}
+		});
+		btnLocation.setBounds(500, 45, 50, 21);
 		contentPane.add(btnLocation);
 		
 		JLabel lblServices = new JLabel("Enter The First Letters Of The Required Response Services");
@@ -167,13 +217,14 @@ public class ClientUI extends JFrame {
 				// Triggered when text is added
 				System.out.println("changed");
 				handleChange();
-
+				sendChange();
 			}
 			@Override
 			public void removeUpdate(DocumentEvent e) {
 				// Triggered when text is deleted
 				System.out.println("Changed");
 				handleChange();
+				sendChange();
 			}
 			
 		    @Override
@@ -221,6 +272,18 @@ public class ClientUI extends JFrame {
 		        }
 
 		    }
+		    
+		    private Gson gson = new Gson();
+		    
+		    private void sendChange() {
+		    	String serviceText = txtServices.getText();
+		    	
+		    	Request rqst = new Request(serviceText, xLocation, yLocation);
+		    	
+		        String json = gson.toJson(rqst);
+
+		        client.sendMessage(json);
+		    }
 
 		});
 
@@ -261,7 +324,38 @@ public class ClientUI extends JFrame {
 		lblPoliceLetter.setBounds(327, 163, 144, 17);
 		contentPane.add(lblPoliceLetter);
 		
+		lblNewLabel = new JLabel("(");
+		lblNewLabel.setFont(new Font("Dialog", Font.BOLD, 20));
+		lblNewLabel.setBounds(361, 37, 9, 33);
+		contentPane.add(lblNewLabel);
 		
 
+		
+		lblNewLabel_1 = new JLabel(",");
+		lblNewLabel_1.setFont(new Font("Dialog", Font.BOLD, 20));
+		lblNewLabel_1.setBounds(406, 37, 9, 33);
+		contentPane.add(lblNewLabel_1);
+		
+		lblNewLabel_2 = new JLabel(")");
+		lblNewLabel_2.setFont(new Font("Dialog", Font.BOLD, 20));
+		lblNewLabel_2.setBounds(449, 37, 9, 33);
+		contentPane.add(lblNewLabel_2);
+		
+		
+	}
+	
+	public static boolean isNumeric(String str) {
+	    if (str == null || str.isEmpty()) return false;
+	    try {
+	        Float.parseFloat(str);
+	        return true;
+	    } catch (NumberFormatException e) {
+			// 1. Print full stack trace (includes line number and error location)
+			e.printStackTrace(); 
+
+			// 2. Print just the exception name and message
+			System.out.println("Exception occurred: " + e.toString());
+			return false;
+		}
 	}
 }

@@ -1,6 +1,7 @@
 package operator911.app;
 import java.io.*;
 import java.net.*;
+import com.google.gson.Gson;
 
 public class ServerApp {
 
@@ -26,11 +27,18 @@ public class ServerApp {
 
         // Reader thread 
         // Maak n loop op n seperate thread wat kyk of daar n message kom deur socket. As ja, print dit
+        
+        Gson gson = new Gson();
+        
         new Thread(() -> {
             try {
-                String msg;
-                while ((msg = in.readLine()) != null) {
-                    System.out.println("Client: " + msg);
+                String received;
+                while ((received = in.readLine()) != null) {
+                	Request rqst = gson.fromJson(received, Request.class);
+
+                	System.out.println("Services: " + rqst.types);
+                	System.out.println("X Location: " + rqst.x);
+                	System.out.println("Y Location: " + rqst.y);
                 }
             } catch (IOException e) {
                 e.printStackTrace();
