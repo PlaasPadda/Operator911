@@ -278,11 +278,14 @@ public class ClientUI extends JFrame {
 		    private void sendChange() {
 		    	String serviceText = txtServices.getText();
 		    	
-		    	Request rqst = new Request(serviceText, xLocation, yLocation);
-		    	
-		        String json = gson.toJson(rqst);
+		    	if (serviceText.length() > 0) {
+					Request rqst = new Request("info", serviceText, xLocation, yLocation);
+					
+					String json = gson.toJson(rqst);
 
-		        client.sendMessage(json);
+					client.sendMessage(json);
+		    	}
+		    	
 		    }
 
 		});

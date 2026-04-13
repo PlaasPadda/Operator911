@@ -1,12 +1,14 @@
 package operator911.app;
 
 public class Request {
-	String types;
+	String type;
+	String services;
     float x;
     float y;
 
-    public Request(String types, float x, float y) {
-        this.types = types;
+    public Request(String type, String services, float x, float y) {
+    	this.type = type;
+        this.services= services;
         this.x = x;
         this.y = y;
     }

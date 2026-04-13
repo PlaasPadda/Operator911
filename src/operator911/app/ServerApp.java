@@ -4,6 +4,9 @@ import java.net.*;
 import com.google.gson.Gson;
 
 public class ServerApp {
+	
+	private static float userX;
+	private static float userY;
 
 	public static void main(String[] args) throws IOException {
 
@@ -26,32 +29,54 @@ public class ServerApp {
         );
 
         // Reader thread 
-        // Maak n loop op n seperate thread wat kyk of daar n message kom deur socket. As ja, print dit
-        
+        // Maak n loop op n seperate thread wat kyk of daar n message kom deur socket. As ja, skryf dit na JSON file. 
         Gson gson = new Gson();
         
         new Thread(() -> {
             try {
                 String received;
-                while ((received = in.readLine()) != null) {
-                	Request rqst = gson.fromJson(received, Request.class);
+                // Maak die file oop om dit te append (true)
+                FileWriter fileWriter = new FileWriter("requests.json", true);
+                BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
 
-                	System.out.println("Services: " + rqst.types);
-                	System.out.println("X Location: " + rqst.x);
-                	System.out.println("Y Location: " + rqst.y);
+                while ((received = in.readLine()) != null) {
+                    Request rqst = gson.fromJson(received, Request.class);
+
+                    // Print to terminal as before
+                    System.out.println("Type: " + rqst.type);
+                    System.out.println("Services: " + rqst.services);
+                    System.out.println("X Location: " + rqst.x);
+                    System.out.println("Y Location: " + rqst.y);
+
+                    // Write the JSON string to the file, one entry per line
+                    if (rqst.type.equals("request")) {
+                    	bufferedWriter.write(received);
+                    	bufferedWriter.newLine();
+                    	bufferedWriter.flush();
+                    }
+                    
+                    if (rqst.type.equals("info")) {
+                    	userX = rqst.x;
+                    	userY = rqst.y;
+                    	System.out.println("User:" + userX + userY);
+                    	searchAndSendByType(rqst.services, out);
+                    }
                 }
+
+                bufferedWriter.close();
+
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }).start();
-
+        
         // Writer loop
-        // Maak n nuwe reader genaamd console, assign dit aan terminal
+        // __Maak__ n __nuwe__ reader __genaamd__ console, assign __dit__ __aan__ terminal
         BufferedReader console = new BufferedReader(
             new InputStreamReader(System.in)
         );
 
-        // As iets in terminal getik word, stuur dit deur socket
+        // As __iets__ in terminal __getik__ word, __stuur__ __dit__ __deur__ socket
         String input;
         while ((input = console.readLine()) != null) {
             out.println(input);
@@ -60,5 +85,30 @@ public class ServerApp {
         socket.close();
         serverSocket.close();
 	}
+	
+	private static void searchAndSendByType(String targetType, PrintWriter out) {
+	    try {
+	    	
+	    	if (targetType.contains("F")) {
+	    		System.out.println("It does");
+				BufferedReader fileReader = new BufferedReader(new FileReader("F.json"));
+				Gson gson = new Gson();
+				String line;
 
-}
+				while ((line = fileReader.readLine()) != null) {
+					//Resource rcrs = gson.fromJson(line, Resource.class);
+					//out.println(rcrs);
+					System.out.println("Sent matching entry: " + line);
+					}
+
+				fileReader.close();
+
+				}
+
+	    } catch (IOException e) {
+	        e.printStackTrace();
+	    }
+	}
+	
+};
+
